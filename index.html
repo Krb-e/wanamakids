@@ -112,6 +112,25 @@ table.ke-t tfoot td:first-child{text-align:left;}
 .ke-scroll table.ke-t{min-width:640px;}
 table.ke-t td.name{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
+/* EMAIL MARKETING (WoowUp) */
+.em-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:8px;}
+.em-card{background:var(--ke-card);border:1px solid var(--ke-border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden;}
+.em-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ke-orange);}
+.em-top{display:flex;align-items:center;gap:10px;}
+.em-name{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ke-muted);}
+.em-val{font-family:'General Sans',sans-serif;font-weight:600;font-size:30px;color:var(--ke-text);line-height:1;margin:10px 0 2px;}
+.em-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:auto;}
+.em-badge.up{color:var(--ke-green);background:rgba(77,204,128,.1);}
+.em-badge.down{color:var(--ke-bad);background:rgba(224,90,58,.12);}
+.em-badge.na{color:var(--ke-muted);background:rgba(255,255,255,.05);}
+.em-sub{font-size:11px;color:rgba(230,230,230,.6);line-height:1.5;margin-top:6px;}
+.em-toggle{display:flex;gap:6px;flex-wrap:wrap;}
+.em-tg{font-family:'Bitroad',sans-serif;font-size:11px;font-weight:600;color:var(--ke-muted);background:transparent;border:1px solid var(--ke-border);border-radius:999px;padding:5px 12px;cursor:pointer;transition:all .15s;}
+.em-tg:hover{color:var(--ke-text);border-color:rgba(255,112,10,.4);}
+.em-tg.active{color:#191919;background:var(--ke-orange);border-color:var(--ke-orange);font-weight:700;}
+.em-est{font-size:10px;color:var(--ke-muted);}
+@media(max-width:900px){.em-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.em-grid{grid-template-columns:1fr;}}
 .ke-chip{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:4px;border:1px solid;}
 .ke-c-neutral{color:var(--ke-text);background:rgba(230,230,230,.06);border-color:var(--ke-border);}
 .ke-c-meta{color:var(--ke-blue);background:rgba(79,163,255,.08);border-color:rgba(79,163,255,.3);}
@@ -217,6 +236,7 @@ table.ke-t td.name{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-
   <div class="ke-nav-tabs-desktop">
     <button type="button" class="ke-nav-tab active" onclick="goTo('p0',this)">Overview</button>
     <button type="button" class="ke-nav-tab" onclick="goTo('p1',this)">Paid Media</button>
+    <button type="button" class="ke-nav-tab" onclick="goTo('p2',this)">Email Marketing</button>
     <button type="button" class="ke-nav-tab" onclick="goTo('p3',this)">Social Media</button>
   </div>
   <button class="ke-nav-burger" id="navBurger" onclick="openMobileMenu()" aria-label="Abrir menú">&#9776;</button>
@@ -230,6 +250,7 @@ table.ke-t td.name{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-
   </div>
   <button type="button" class="ke-nav-tab active" onclick="goTo('p0',this);closeMobileMenu()">Overview</button>
   <button type="button" class="ke-nav-tab" onclick="goTo('p1',this);closeMobileMenu()">Paid Media</button>
+  <button type="button" class="ke-nav-tab" onclick="goTo('p2',this);closeMobileMenu()">Email Marketing</button>
   <button type="button" class="ke-nav-tab" onclick="goTo('p3',this);closeMobileMenu()">Social Media</button>
 </div>
 
@@ -342,7 +363,64 @@ table.ke-t td.name{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-
 </section>
 
 
+<section id="p2" class="ke-page">
+  <div class="ke-pg-header">
+    <div>
+      <div class="ke-eyebrow">Email Marketing · WoowUp</div>
+      <div class="ke-pg-title">EMAIL <span>MARKETING</span></div>
+      <div class="ke-pg-sub">Métricas principales de tus envíos · <span class="dateauto"></span> · comparado vs. el período anterior</div>
+    </div>
+    <div class="ke-pg-stat"><div id="stat-email" class="ke-pg-stat-val">—</div><div class="ke-pg-stat-lbl">Open rate prom.</div></div>
+  </div>
 
+  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Métricas principales de tus emails</span><span class="ke-goal-mes">fuente: <b>WoowUp</b></span></div>
+  <div class="em-grid">
+    <div class="em-card"><div class="em-top"><span class="em-name">Envíos</span><span id="em-envios-b" class="em-badge na">—</span></div><div id="em-envios" class="em-val">—</div><div id="em-envios-sub" class="em-sub"></div></div>
+    <div class="em-card"><div class="em-top"><span class="em-name">Aperturas</span><span id="em-aper-b" class="em-badge na">—</span></div><div id="em-aper" class="em-val">—</div><div id="em-aper-sub" class="em-sub"></div></div>
+    <div class="em-card"><div class="em-top"><span class="em-name">Clicks</span><span id="em-clicks-b" class="em-badge na">—</span></div><div id="em-clicks" class="em-val">—</div><div id="em-clicks-sub" class="em-sub"></div></div>
+    <div class="em-card"><div class="em-top"><span class="em-name">Click rate</span><span id="em-ctor-b" class="em-badge na">—</span></div><div id="em-ctor" class="em-val">—</div><div id="em-ctor-sub" class="em-sub"></div></div>
+    <div class="em-card"><div class="em-top"><span class="em-name">Rebotes</span><span id="em-reb-b" class="em-badge na">—</span></div><div id="em-reb" class="em-val">—</div><div id="em-reb-sub" class="em-sub"></div></div>
+    <div class="em-card"><div class="em-top"><span class="em-name">Desuscripciones</span><span id="em-des-b" class="em-badge na">—</span></div><div id="em-des" class="em-val">—</div><div id="em-des-sub" class="em-sub"></div></div>
+  </div>
+
+  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Ventas atribuidas a los envíos</span><span class="ke-goal-mes">atribución propia de <b>WoowUp</b> · no se suma a Meta ni a GA4</span></div>
+  <div class="em-grid">
+    <div class="em-card"><div class="em-top"><span class="em-name">Conversiones</span><span id="em-conv-b" class="em-badge na">—</span></div><div id="em-conv" class="em-val">—</div><div id="em-conv-sub" class="em-sub"></div></div>
+    <div class="em-card"><div class="em-top"><span class="em-name">Facturación atribuida</span><span id="em-rev-b" class="em-badge na">—</span></div><div id="em-rev" class="em-val">—</div><div id="em-rev-sub" class="em-sub"></div></div>
+    <div class="em-card"><div class="em-top"><span class="em-name">Ticket promedio</span><span id="em-aov-b" class="em-badge na">—</span></div><div id="em-aov" class="em-val">—</div><div id="em-aov-sub" class="em-sub"></div></div>
+  </div>
+
+  <div class="ke-block"><div class="ke-block-top"></div>
+    <div class="ke-bh" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span class="ke-bt">Evolución por envío</span>
+      <div class="em-toggle" style="margin-left:auto;">
+        <button class="em-tg em-tg-s active" onclick="emSetSeries('envios',this)">Envíos</button>
+        <button class="em-tg em-tg-s" onclick="emSetSeries('aperturas',this)">Aperturas</button>
+        <button class="em-tg em-tg-s" onclick="emSetSeries('clicks',this)">Clicks</button>
+        <button class="em-tg em-tg-s" onclick="emSetSeries('revenue',this)">Facturación</button>
+      </div>
+      <div class="em-toggle">
+        <button class="em-tg em-tg-u active" onclick="emSetUnit('#',this)">#</button>
+        <button class="em-tg em-tg-u" onclick="emSetUnit('%',this)">%</button>
+      </div>
+    </div>
+    <div class="ke-bbody"><div class="ke-chartbox"><canvas id="cEmail"></canvas></div></div>
+  </div>
+
+  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Detalle por envío</span><span id="em-fuente-fecha" class="ke-goal-mes"></span></div>
+  <div class="ke-block"><div class="ke-block-top"></div>
+    <div class="ke-scroll">
+      <table class="ke-t">
+        <thead><tr><th>Envío</th><th>Enviados</th><th>Entregados</th><th class="acc">Open rate</th><th>Click rate</th><th>CTOR</th><th>Rebote</th><th>Desuscr.</th><th>Conv.</th><th>Facturación</th></tr></thead>
+        <tbody id="em-tbody"><tr><td>Cargando…</td></tr></tbody>
+        <tfoot id="em-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Conclusiones &amp; accionables · Email Marketing</span></div>
+  <div id="insights-em" class="ke-ins-wrap"><div class="ke-pg-sub">Cargando…</div></div>
+</section>
 
 
 <section id="p3" class="ke-page">
@@ -668,7 +746,7 @@ function labelRange(){
   const np=document.getElementById('navPeriod'); if(np)np.textContent=txt;
   document.querySelectorAll('.dateauto').forEach(e=>e.textContent=txt);
 }
-function setRange(from,to){state.from=from;state.to=to;labelRange();loadData();if(window.__igReload)window.__igReload();}
+function setRange(from,to){state.from=from;state.to=to;labelRange();loadData();loadEmail();if(window.__igReload)window.__igReload();}
 function preset(r,el){
   document.querySelectorAll('.tb-pill').forEach(p=>p.classList.remove('active')); if(el)el.classList.add('active');
   const now=new Date(),y=atMidnight(addDays(now,-1));
@@ -788,6 +866,92 @@ async function loadObjetivos(){
   }catch(e){console.error(e);box.innerHTML='<div class="ke-pg-sub">Error cargando objetivos: '+e.message+'</div>';}
 }
 
+/* ===== Email Marketing (WoowUp) ===== */
+let _emRows=[],_emSeries='envios',_emUnit='#';
+function pctN(v,n){return (v||0).toFixed(n).replace('.',',')+'%';}
+const emEsc=v=>String(v==null?'':v).replace(/[<>&]/g,c=>c==='<'?'&lt;':(c==='>'?'&gt;':'&amp;'));
+/* WoowUp si manda la fecha real de envio (lastsent), asi que la etiqueta usa el dia.
+   emShort queda para el caso borde de una campania sin fecha. */
+function emShort(n){if(!n)return '—';const p=String(n).split(/[-_]/);return p[p.length-1];}
+function emLbl(r){
+  if(!r.date)return emShort(r.campaign_name);
+  const d=new Date(r.date+'T00:00:00');
+  return d.getDate()+' '+MES[d.getMonth()];
+}
+function emFecha(r){
+  if(!r.date)return 'sin fecha';
+  const d=new Date(r.date+'T00:00:00');
+  return d.getDate()+' '+MES[d.getMonth()]+' '+d.getFullYear();
+}
+function emAgg(rows){
+  const S=k=>sum(rows,x=>x[k]);
+  const sent=S('sent'),deliv=S('delivered'),op=S('opened'),opT=S('opened_total'),cl=S('clicked'),clT=S('clicked_total'),
+        bo=S('bounced'),un=S('unsubscribed'),cv=S('conversions'),rev=S('conversions_amount');
+  return {sent,deliv,op,opT,cl,clT,bo,un,cv,rev,
+    dr:sent?deliv/sent*100:0, or:deliv?op/deliv*100:0, cr:deliv?cl/deliv*100:0,
+    ctor:op?cl/op*100:0, br:sent?bo/sent*100:0, ur:deliv?un/deliv*100:0,
+    cvr:deliv?cv/deliv*100:0, aov:cv?rev/cv:0};
+}
+function emBadge(c,pv,lower){
+  if(!pv||!isFinite(pv))return '<span class="em-badge na">—</span>';
+  const d=(c-pv)/pv*100,up=d>=0,good=lower?!up:up;
+  return '<span class="em-badge '+(good?'up':'down')+'">'+(up?'▲':'▼')+' '+Math.abs(d).toFixed(0)+'%</span>';
+}
+async function loadEmail(){
+  /* WoowUp fecha cada campania con su envio real, asi que esta seccion usa la misma
+     ventana corrediza que el resto del dashboard. (Wanama Kids compara mes calendario
+     contra mes calendario porque WoowUp no fecha las campanias: aca esa excepcion
+     desincronizaria la pestana del selector de periodo.) */
+  const {pFrom,pTo}=periods();
+  const S_cur=iso(state.from),E_cur=iso(state.to);
+  const S_prev=iso(pFrom),E_prev=iso(pTo);
+  try{
+    const rows=await sb('wanamakids_email_marketing','date,loaded_at,campaign_name,campaign_subject,campaign_state,sent,delivered,opened,opened_total,clicked,clicked_total,bounced,unsubscribed,conversions,conversions_amount,conversion_rate,delivered_rate,open_rate,click_rate,click_to_open_rate,bounce_rate,unsubscribe_rate',S_prev,E_cur);
+    const cur=rows.filter(r=>between(r.date,S_cur,E_cur));
+    const prev=rows.filter(r=>between(r.date,S_prev,E_prev));
+    renderEmail(cur,prev);
+  }catch(e){console.error('email',e);const t=document.getElementById('em-tbody');if(t)t.innerHTML='<tr><td colspan="10">Error: '+e.message+'</td></tr>';}
+}
+function renderEmail(cur,prev){
+  _emRows=cur.slice().sort((a,b)=>(a.date||'')<(b.date||'')?-1:((a.date||'')>(b.date||'')?1:String(a.campaign_name||'').localeCompare(String(b.campaign_name||''))));
+  const a=emAgg(cur),p=emAgg(prev);
+  setTxt('stat-email',pctN(a.or,0));
+  setTxt('em-envios',fmtInt(a.sent)); setHTML('em-envios-b',emBadge(a.sent,p.sent,false)); setTxt('em-envios-sub',pctN(a.dr,1)+' de los emails enviados fueron entregados con éxito.');
+  setTxt('em-aper',pctN(a.or,1)); setHTML('em-aper-b',emBadge(a.or,p.or,false)); setTxt('em-aper-sub',fmtInt(a.op)+' aperturas únicas sobre '+fmtInt(a.deliv)+' entregados.');
+  setTxt('em-clicks',pctN(a.ctor,1)); setHTML('em-clicks-b',emBadge(a.ctor,p.ctor,false)); setTxt('em-clicks-sub',fmtInt(a.cl)+' de los abiertos recibieron al menos un click · '+pctN(a.cr,1)+' de los entregados.');
+  setTxt('em-ctor',pctN(a.cr,1)); setHTML('em-ctor-b',emBadge(a.cr,p.cr,false)); setTxt('em-ctor-sub',fmtInt(a.cl)+' clics únicos sobre '+fmtInt(a.deliv)+' entregados.');
+  setTxt('em-reb',pctN(a.br,2)); setHTML('em-reb-b',emBadge(a.br,p.br,true)); setTxt('em-reb-sub',fmtInt(a.bo)+' emails rechazados por el servidor.');
+  setTxt('em-des',pctN(a.ur,2)); setHTML('em-des-b',emBadge(a.ur,p.ur,true)); setTxt('em-des-sub',fmtInt(a.un)+' destinatarios se desuscribieron.');
+  setTxt('em-conv',fmtInt(a.cv)); setHTML('em-conv-b',emBadge(a.cv,p.cv,false)); setTxt('em-conv-sub',pctN(a.cvr,2)+' de los entregados terminó en compra, según la atribución de WoowUp.');
+  setTxt('em-rev',moneyKpi(a.rev)); setHTML('em-rev-b',emBadge(a.rev,p.rev,false)); setTxt('em-rev-sub','Facturación que WoowUp atribuye a estos envíos. No se suma a Meta ni a GA4.');
+  setTxt('em-aov',moneyKpi(a.aov)); setHTML('em-aov-b',emBadge(a.aov,p.aov,false)); setTxt('em-aov-sub',a.cv?('Promedio de '+fmtInt(a.cv)+' conversiones atribuidas.'):'Sin conversiones atribuidas en el período.');
+  const _emUlt=_emRows.map(r=>r.loaded_at).filter(Boolean).sort().pop();
+  setHTML('em-fuente-fecha',_emUlt?('última carga desde WoowUp: '+new Date(_emUlt).toLocaleDateString('es-AR')):'');
+  const tb=document.getElementById('em-tbody');
+  if(tb){
+    if(!_emRows.length){tb.innerHTML='<tr><td colspan="10">Sin envíos en el período.</td></tr>';}
+    else{tb.innerHTML=_emRows.map(r=>'<tr><td class="name" title="'+emEsc(r.campaign_subject||'')+'"><b>'+emEsc(r.campaign_name||'—')+'</b><br><span style="font-size:10px;color:var(--ke-muted);">'+emFecha(r)+'</span></td><td>'+fmtInt(r.sent)+'</td><td>'+fmtInt(r.delivered)+'</td><td>'+pctN(+r.open_rate,1)+'</td><td>'+pctN(+r.click_rate,1)+'</td><td>'+pctN(+r.click_to_open_rate,1)+'</td><td>'+pctN(+r.bounce_rate,2)+'</td><td>'+fmtInt(r.unsubscribed)+'</td><td>'+fmtInt(r.conversions)+'</td><td>'+money(r.conversions_amount)+'</td></tr>').join('');}
+  }
+  const tf=document.getElementById('em-tfoot');
+  if(tf){tf.innerHTML=_emRows.length?('<tr><td>Total / prom.</td><td>'+fmtInt(a.sent)+'</td><td>'+fmtInt(a.deliv)+'</td><td>'+pctN(a.or,1)+'</td><td>'+pctN(a.cr,1)+'</td><td>'+pctN(a.ctor,1)+'</td><td>'+pctN(a.br,2)+'</td><td>'+fmtInt(a.un)+'</td><td>'+fmtInt(a.cv)+'</td><td>'+money(a.rev)+'</td></tr>'):'';}
+  emChart();
+}
+function emChart(){
+  const el=document.getElementById('cEmail');if(!el)return;
+  const rows=_emRows,U=_emUnit,Sx=_emSeries;
+  const lab=rows.map(emLbl);
+  let data,label,color=ORANGE,isMoney=false;
+  if(Sx==='envios'){data=rows.map(r=>U==='#'?(+r.sent||0):(+r.delivered_rate||0));label=U==='#'?'Enviados':'Tasa de entrega %';}
+  else if(Sx==='aperturas'){data=rows.map(r=>U==='#'?(+r.opened||0):(+r.open_rate||0));label=U==='#'?'Aperturas únicas':'Open rate %';color='#ffa15c';}
+  else if(Sx==='revenue'){data=rows.map(r=>U==='#'?(+r.conversions_amount||0):(+r.conversion_rate||0));label=U==='#'?'Facturación atribuida':'Tasa de conversión %';color=GREEN;isMoney=(U==='#');}
+  else{data=rows.map(r=>U==='#'?(+r.clicked||0):(+r.click_rate||0));label=U==='#'?'Clics únicos':'Click rate %';color=BLUE;}
+  if(charts.cEmail)charts.cEmail.destroy();
+  charts.cEmail=new Chart(el,{type:'bar',data:{labels:lab,datasets:[{label,data,backgroundColor:color+'cc',borderColor:color,borderWidth:1,borderRadius:6,maxBarThickness:64}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false},tooltip:{callbacks:{label:c=>label+': '+(U==='%'?pctN(c.parsed.y,2):(isMoney?money(c.parsed.y):fmtInt(c.parsed.y)))}}},scales:{x:{grid:{display:false}},y:{grid:{color:GRID},beginAtZero:true,ticks:{callback:v=>isMoney?moneyC(v):v}}}}});
+}
+function emSetSeries(s,el){_emSeries=s;document.querySelectorAll('.em-tg-s').forEach(b=>b.classList.remove('active'));el.classList.add('active');emChart();}
+function emSetUnit(u,el){_emUnit=u;document.querySelectorAll('.em-tg-u').forEach(b=>b.classList.remove('active'));el.classList.add('active');emChart();}
+
+
 /* ===== Sprint Review / Conclusiones & accionables (Notion -> wanamakids_insights) ===== */
 async function loadInsights(area,elId){
   const el=document.getElementById(elId);if(!el)return;
@@ -817,8 +981,10 @@ async function loadInsights(area,elId){
 
 labelRange();
 loadData();
+loadEmail();
 loadObjetivos();
 loadInsights('Paid Media','insights-pm');
+loadInsights('Email Marketing','insights-em');
 let _mob=isMobile();
 window.addEventListener('resize',()=>{const m=isMobile();if(m!==_mob){_mob=m;if(_last)render(_last.c,_last.p,_last.D);}});
 
