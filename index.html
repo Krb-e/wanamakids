@@ -339,7 +339,7 @@ table.ke-t td.name{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-
 
   <div class="ke-sec-head"><div class="ke-sec-line"></div><span class="ke-sec-label">Tienda</span></div>
   <div class="ke-grid-4">
-    <div class="ke-kc"><div class="ke-kl">Facturación (GA4)</div><div id="kv-fact" class="ke-kv">—</div><div id="ks-fact" class="ke-ks"></div></div>
+    <div class="ke-kc"><div class="ke-kl">Facturación</div><div id="kv-fact" class="ke-kv">—</div><div id="ks-fact" class="ke-ks"></div></div>
     <div class="ke-kc"><div class="ke-kl">Ticket promedio</div><div id="kv-ticket" class="ke-kv w">—</div><div id="ks-ticket" class="ke-ks"></div></div>
     <div class="ke-kc g"><div class="ke-kl">Tasa de conversión</div><div id="kv-conv" class="ke-kv g">—</div><div id="ks-conv" class="ke-ks"></div></div>
     <div class="ke-kc"><div class="ke-kl">Órdenes</div><div id="kv-ord" class="ke-kv w">—</div><div id="ks-ord" class="ke-ks"></div></div>
@@ -347,7 +347,7 @@ table.ke-t td.name{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-
 
   
   <div class="ke-block"><div class="ke-block-top"></div>
-    <div class="ke-bh"><span class="ke-bt">Facturación diaria (GA4)</span></div>
+    <div class="ke-bh"><span class="ke-bt">Facturación diaria</span></div>
     <div class="ke-bbody"><div class="ke-chartbox"><canvas id="cFactDia"></canvas></div></div>
   </div>
 
@@ -743,12 +743,21 @@ async function sb(table,cols,from,to){
   }
   return out;
 }
-function calc(meta,google,ga4){
-  /* Wanama Kids no tiene Tiendanube: la facturacion y las ordenes del Overview
-     salen de GA4 (total_revenue / transactions). Es la atribucion de GA4, no el
-     total pagado de la tienda: no es comparable con la facturacion Tiendanube de
-     otros clientes. Por eso el KPI dice "Facturación (GA4)". */
-  const facturacion=sum(ga4,x=>x.total_revenue), ordenes=sum(ga4,x=>x.transactions), ticket=ordenes?facturacion/ordenes:0;
+function calc(meta,google,ga4,tn){
+  /* Facturacion REAL de Tiendanube (order_total_paid, status paid) por fecha.
+     Para fechas sin dato de Tiendanube todavia (previas al ETL, que arranco el
+     22/10/2026) se usa GA4 total_revenue como proxy, hasta que el backfill lo cubra. */
+  tn=tn||[];
+  const tnRev={},tnOrd={};
+  tn.forEach(o=>{if(o.order_payment_status==='paid'){tnRev[o.date]=(tnRev[o.date]||0)+(parseFloat(o.order_total_paid)||0);tnOrd[o.date]=(tnOrd[o.date]||0)+1;}});
+  const g4Rev={},g4Ord={};
+  ga4.forEach(x=>{g4Rev[x.date]=(g4Rev[x.date]||0)+(parseFloat(x.total_revenue)||0);g4Ord[x.date]=(g4Ord[x.date]||0)+(parseFloat(x.transactions)||0);});
+  let facturacion=0,ordenes=0;
+  new Set(Object.keys(g4Rev).concat(Object.keys(tnRev))).forEach(d=>{
+    if(d in tnRev){facturacion+=tnRev[d];ordenes+=tnOrd[d];}
+    else{facturacion+=g4Rev[d]||0;ordenes+=g4Ord[d]||0;}
+  });
+  const ticket=ordenes?facturacion/ordenes:0;
   const sesiones=sum(ga4,x=>x.sessions), users=sum(ga4,x=>x.total_users);
   const conv=sesiones?ordenes/sesiones*100:0;
   const mS=sum(meta,x=>x.amount_spent),mP=sum(meta,x=>x.website_purchases),mV=sum(meta,x=>x.purchases_conv_value),mI=sum(meta,x=>x.impressions);
@@ -771,15 +780,16 @@ async function loadData(){
   const {pFrom,pTo}=periods();
   const S_cur=iso(state.from),E_cur=iso(state.to),S_prev=iso(pFrom),E_prev=iso(pTo);
   try{
-    const [meta,google,ga4]=await Promise.all([
+    const [meta,google,ga4,tn]=await Promise.all([
       sb('wanamakids_meta_ads','date,campaign_name,ad_image_url,ad_image_backup_url,ad_creative_body,ad_shareable_preview_link,amount_spent,impressions,landing_page_views,website_purchases,purchases_conv_value,ctr,video_view_3s,video_watch_100',S_prev,E_cur),
       sb('wanamakids_google_ads','date,campaign_name,cost,clicks,avg_cpc',S_prev,E_cur),
-      sb('wanamakids_ga4_sessions','date,source_medium,total_users,sessions,transactions,total_revenue',S_prev,E_cur)
+      sb('wanamakids_ga4_sessions','date,source_medium,total_users,sessions,transactions,total_revenue',S_prev,E_cur),
+      sb('wanamakids_tiendanube_orders','date,order_payment_status,order_total_paid',S_prev,E_cur)
     ]);
     const f=(arr,a,b)=>arr.filter(r=>between(r.date,a,b));
-    const cur=calc(f(meta,S_cur,E_cur),f(google,S_cur,E_cur),f(ga4,S_cur,E_cur));
-    const prev=calc(f(meta,S_prev,E_prev),f(google,S_prev,E_prev),f(ga4,S_prev,E_prev));
-    render(cur,prev,{ga4cur:f(ga4,S_cur,E_cur),ga4prev:f(ga4,S_prev,E_prev),metaCur:f(meta,S_cur,E_cur),pFrom});
+    const cur=calc(f(meta,S_cur,E_cur),f(google,S_cur,E_cur),f(ga4,S_cur,E_cur),f(tn,S_cur,E_cur));
+    const prev=calc(f(meta,S_prev,E_prev),f(google,S_prev,E_prev),f(ga4,S_prev,E_prev),f(tn,S_prev,E_prev));
+    render(cur,prev,{ga4cur:f(ga4,S_cur,E_cur),ga4prev:f(ga4,S_prev,E_prev),tncur:f(tn,S_cur,E_cur),metaCur:f(meta,S_cur,E_cur),pFrom});
   }catch(e){console.error(e);const h=document.querySelector('.ke-pg-sub'); if(h)h.textContent='⚠️ Error cargando Supabase: '+e.message;}
   finally{_busy=false;}
 }
@@ -812,7 +822,8 @@ function render(c,p,D){
 
   const N=dayDiff(state.from,state.to)+1;
   const lab=[],fdata=[];
-  const fac={}; D.ga4cur.forEach(x=>{fac[x.date]=(fac[x.date]||0)+(parseFloat(x.total_revenue)||0);});
+  const fac={},tnHas={}; (D.tncur||[]).forEach(o=>{if(o.order_payment_status==='paid'){fac[o.date]=(fac[o.date]||0)+(parseFloat(o.order_total_paid)||0);tnHas[o.date]=1;}});
+  D.ga4cur.forEach(x=>{if(!tnHas[x.date])fac[x.date]=(fac[x.date]||0)+(parseFloat(x.total_revenue)||0);});
   for(let i=0;i<N;i++){const d=addDays(state.from,i);lab.push(d.getDate()+'/'+(d.getMonth()+1));fdata.push(fac[iso(d)]||0);}
   mkLine('cFactDia',lab,[{label:'Facturación',data:fdata,borderColor:ORANGE,backgroundColor:'rgba(255,112,10,.12)',fill:true,tension:.3,pointRadius:N>45?0:3,pointBackgroundColor:ORANGE,borderWidth:2}],false);
 
@@ -1080,16 +1091,21 @@ async function loadObjetivos(){
     const S=iso(mStart),E=iso(to);
     const headers={apikey:SUPABASE_ANON_KEY,Authorization:'Bearer '+SUPABASE_ANON_KEY};
     const objUrl=SUPABASE_URL+"/rest/v1/objetivos?select=*&cliente=eq.wanama%20kids&fecha=eq."+encodeURIComponent(mm);
-    const [meta,google,ga4,objR]=await Promise.all([
+    const [meta,google,ga4,tn,objR]=await Promise.all([
       sb('wanamakids_meta_ads','date,amount_spent',S,E),
       sb('wanamakids_google_ads','date,cost',S,E),
       sb('wanamakids_ga4_sessions','date,total_revenue,transactions',S,E),
+      sb('wanamakids_tiendanube_orders','date,order_payment_status,order_total_paid',S,E),
       fetch(objUrl,{headers}).then(r=>r.ok?r.json():[])
     ]);
     const obj=(objR&&objR[0])||null;
     if(!obj){box.innerHTML='<div class="ke-pg-sub">Sin objetivos cargados para '+mm+'. Completá la hoja de objetivos.</div>';setTxt('goal-mes','');return;}
     const realMeta=sum(meta,x=>x.amount_spent),realGoogle=sum(google,x=>x.cost);
-    const realFact=sum(ga4,x=>x.total_revenue),realOrd=sum(ga4,x=>x.transactions);
+    /* Facturacion real Tiendanube por fecha, con fallback a GA4 para fechas sin dato (ver calc). */
+    const _tnR={},_tnO={};(tn||[]).forEach(o=>{if(o.order_payment_status==='paid'){_tnR[o.date]=(_tnR[o.date]||0)+(parseFloat(o.order_total_paid)||0);_tnO[o.date]=(_tnO[o.date]||0)+1;}});
+    const _g4R={},_g4O={};ga4.forEach(x=>{_g4R[x.date]=(_g4R[x.date]||0)+(parseFloat(x.total_revenue)||0);_g4O[x.date]=(_g4O[x.date]||0)+(parseFloat(x.transactions)||0);});
+    let realFact=0,realOrd=0;
+    new Set(Object.keys(_g4R).concat(Object.keys(_tnR))).forEach(d=>{if(d in _tnR){realFact+=_tnR[d];realOrd+=_tnO[d];}else{realFact+=_g4R[d]||0;realOrd+=_g4O[d]||0;}});
     setTxt('goal-mes','Mes en curso · día '+diaHoy+'/'+diasMes+' · ritmo ideal '+idealPct.toFixed(0)+'%');
     const bar=(name,real,objv,kind)=>{
       const o=+objv||0,pc=o?real/o*100:0;
